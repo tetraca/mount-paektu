@@ -1,18 +1,30 @@
-#include "header/paektu.hh"
+/* This file is part of Mount Paektu.
 
-using namespace std;
+ * Mount Paektu is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+
+ * Mount Paektu is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
+
+#include "header/paektu.hh"
 
 // Debug constructor
 Paektu::Paektu() : s_deck(40)
 {
-  stringstream playername;
+  std::stringstream playername;
 
   // Make a generic set of players with 2000 gold pots
   for(int i = 1; i < s_players.size(); i++) 
     {
       playername << "Player " << i;
       s_players.at(i - 1) = Player (playername.str(), 2000);
-      playername.str(string());
+      playername.str(std::string());
     }
 
   // Build 40 stack deck
@@ -44,6 +56,7 @@ void Paektu::advance_round()
 	s_dealer.get_drop_hand().at(1).get_rank();
 
       int sum_player;
+      bool trump = false;
 
       for(Player &i : s_players)
 	{
@@ -79,13 +92,17 @@ void Paektu::advance_round()
 	      // Doubles will demote a player.
 	      // You cannot demote a player if all players are on the first tier
 
-	      if()
+	      if(i.get_name() == get_highest_player()->get_name())
 		{
 		  // If the player is the highest player by ranking
+		  // He trumps the attempt at demotion
+		  trump = true;
 		}
-	      else
+
+	      if(!trump)
 		{
 		  // Demote the highest player if there's a double
+		  player_round_lost(get_highest_player());
 		}
 	    }
 	}
@@ -93,35 +110,50 @@ void Paektu::advance_round()
   else
     {
       if(!are_players_synchronized())
-	throw runtime_error("Players are not on a concurrent state.");
+	throw std::runtime_error("Players are not on a concurrent state.");
       else if(!s_game_status == PLAYING)
-	throw runtime_error("Game has been finished already.");
+	throw std::runtime_error("Game has been finished already.");
     }
 
   draw_new_round();
 }
 
-void Paektu::player_round_won(Player* player)
+Player& Paektu::get_highest_player()
+{
+  std::sort(s_players.begin(), s_players.end(), Paektu::cmp_player);
+
+  return s_players.at(6);
+}
+
+bool Paektu::cmp_player(const Player& x, const Player& y)
+{
+  return x.get_tier() < y.get_tier();
+}
+
+void Paektu::player_round_won(Player& player)
 {
   // Grab all the players being held in the next tier
-  int next_tier = player->get_tier() + 1;
-  vector<Player*> tier = get_tier(next_tier);
+  int next_tier = player.get_tier() + 1;
+  std::vector<Player*> tier = get_tier(next_tier);
 
   // Check to see if the tier is full
-  if(tier.size() > next_tier)
+  if(tier.size() >= next_tier)
     {
-
+      // When the next tier is full
+      // Demote a player in that tier
+      // The first that appears in that tier will suffice
+      tier.at(0)->set_tier(tier.at(0)->get_tier() - 1);
     }
 
   // Finally, place the player into a new tier
-  player->set_tier(player->get_tier() + 1);
+  player.set_tier(player.get_tier() + 1);
 }
 
-void Paektu::player_round_lost(Player* player)
+void Paektu::player_round_lost(Player& player)
 {
   // Subtract the wager from their bank
-  player->set_bank(0 - player->get_wager());
-  player->set_wager(0);
+  player.set_bank(0 - player->get_wager());
+  player.set_wager(0);
 }
 
 
@@ -144,14 +176,14 @@ void Paektu::draw_new_round()
 	  // Advance the turn we are currently on.
 	  s_current_turn++;
 	}
-      catch(runtime_error& e)
+      catch(std::runtime_error& e)
 	{
 	  // There shouldn't be any case where we run out of cards
 	  // In the middle of a round, but if this happens
 	  // Just crash the program,
 	  // Because you deserve it for not doing the math correctly.
 
-	  throw runtime_error("Ran out of cards in middle of round.");
+	  throw std::runtime_error("Ran out of cards in middle of round.");
 	}
     }
   // Otherwise declare the highest tiered player the winner
@@ -179,17 +211,17 @@ bool Paektu::are_players_synchronized()
   return true;
 }
 
-Player Paektu::get_player_at(int i)
+Player& Paektu::get_player_at(int i)
 {
   if(i < 0)
-    throw invalid_argument("Tried to get player at less than zero");
+    throw std::invalid_argument("Tried to get player at less than zero");
   else if(i > 6)
-    throw invalid_argument("Tried to get player at more than six");
+    throw std::invalid_argument("Tried to get player at more than six");
 
   return s_players.at(i);
 }
 
-Dealer Paektu::get_dealer()
+Dealer& Paektu::get_dealer()
 {
   return s_dealer;
 }
@@ -197,15 +229,16 @@ Dealer Paektu::get_dealer()
 std::vector<Player*> Paektu::get_tier(int tier) 
 {
   if(tier > 6)
-    throw invalid_argument("get_tier supplied with tier > 6");
+    throw std::invalid_argument("get_tier supplied with tier > 6");
   else if(tier < 0)
-    throw invalid_argument("get_tier supplied with tier < 0");
+    throw std::invalid_argument("get_tier supplied with tier < 0");
 
-  vector<Player*> players_of_tier;
+  std::vector<Player*> players_of_tier;
+
   for(Player &i : s_players) 
     {
       if(i.get_tier() == tier)
-	players_of_tier.push_back(i);
+	players_of_tier.push_back(&i);
     }
 
   return players_of_tier;
@@ -213,11 +246,11 @@ std::vector<Player*> Paektu::get_tier(int tier)
 
 std::array<int, 7> Paektu::get_player_tiers()
 {
-  std::array<int 7> tiers;
+  std::array<int, 7> tiers;
 
-  for(Player &i : s_players)
+  for(int i = 0; i < 7; i++)
     {
-      tiers.push_back(i.get_tier());
+      tiers.at(i) = s_players.at(i).get_tier();
     }
 
   return tiers;
