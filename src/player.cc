@@ -134,6 +134,13 @@ void Player::set_drop_hand (vector<Card> hand)
   s_drop_hand = hand;
 }
 
+void Player::add_to_drop_hand (Card card)
+{
+  if(s_drop_hand.size() < 3)
+    s_drop_hand.push_back(card);
+  else
+    throw std::invalid_argument("Cannot add more cards to your hand");
+}
 
 
 // For the Full Hand

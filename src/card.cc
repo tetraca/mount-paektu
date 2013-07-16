@@ -14,8 +14,6 @@
 
 #include "header/card.hh"
 
-using namespace std;
-
 Card::Card () 
 {
   // A "blank" card. Appears as the zero of spades.
@@ -27,9 +25,9 @@ Card::Card ()
 Card::Card (int rank, Card::Suit suit) 
 {
   if(rank < 1)
-    throw invalid_argument("Card: Rank declared is less than 1.");
+    throw std::invalid_argument("Card: Rank declared is less than 1.");
   if(rank > 13)
-    throw invalid_argument("Card: Rank is greater than 13.");
+    throw std::invalid_argument("Card: Rank is greater than 13.");
   
   s_rank = rank;
   s_suit = suit;
@@ -45,11 +43,11 @@ Card::Suit Card::get_suit ()
   return s_suit;
 }
 
-string Card::get_suit_as_string ()
+std::string Card::get_suit_as_string ()
 {
   // This function exists purely for debug purposes.
 
-  string strep;
+  std::string strep;
 
   if(s_suit == SPADES)
     strep = "Spades";
@@ -65,11 +63,11 @@ string Card::get_suit_as_string ()
   return strep;
 }
 
-string Card::to_string () 
+std::string Card::to_string () 
 {
   // This function exists purely for debug purposes.
 
-  ostringstream ss;
+  std::ostringstream ss;
   
   ss << s_rank << " of " << get_suit_as_string();
   

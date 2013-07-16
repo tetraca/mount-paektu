@@ -15,12 +15,10 @@
 
 #include "header/deck.hh"
 
-using namespace std;
-
 Deck::Deck (int stacks) 
 {
   if(stacks < 1)
-    throw invalid_argument("Deck: Stacks declared are less than one.");
+    throw std::invalid_argument("Deck: Stacks declared are less than one.");
 
   this->stacks = stacks;
   out_of_cards = false;
@@ -42,15 +40,15 @@ Card Deck::draw_card ()
     }
   else
     {
-      throw runtime_error("Attempted to pull a card from the deck that wasn't there.");
+      throw std::runtime_error("Attempted to pull a card from the deck that wasn't there.");
     }
 
   return drawn_card;
 }
 
-vector<Card> Deck::draw_hand (int n) 
+std::vector<Card> Deck::draw_hand (int n) 
 {
-  vector<Card> drawn_cards;
+  std::vector<Card> drawn_cards;
 
   if(!is_out_of_cards())
     {
@@ -72,7 +70,7 @@ vector<Card> Deck::draw_hand (int n)
     }
   else
     {
-      throw runtime_error("Deck is out of cards.");
+      throw std::runtime_error("Deck is out of cards.");
     }
 
   return drawn_cards;
@@ -111,5 +109,5 @@ void Deck::build_deck ()
 void Deck::shuffle () 
 {
   // This could have been complicated but standard library saved the day.
-  random_shuffle(card_deck.begin(), card_deck.end());
+  std::random_shuffle(card_deck.begin(), card_deck.end());
 }

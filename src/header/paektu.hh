@@ -33,7 +33,6 @@ public:
   std::vector<Player*> get_tier(int tier);
   std::array<int, 7> get_player_tiers();
   Player& get_highest_player();
-  static int cmp_tier(int x, int y);
   static bool cmp_player(const Player& x, const Player& y);
 
   long get_current_pot();
@@ -41,13 +40,12 @@ public:
 
   enum GameStatus {PLAYING, COMPLETE};
   bool is_complete();
-  Player &get_player_at(int i);
+  Player& get_player_at(int i);
 
   Dealer& get_dealer();
 
-  void player_round_won(Player* player);
-  void player_round_lost(Player* player);
-
+  void player_round_won(Player& player);
+  void player_round_lost(Player& player);
 
 
 private:

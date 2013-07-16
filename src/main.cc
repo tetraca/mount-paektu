@@ -20,7 +20,7 @@
 
 std::string read_user_input (std::string query);
 long get_wager(Player &player);
-Card* get_card(Player &player);
+Card get_card(Player &player);
 
 
 int main (int argc, char *argv[]) 
@@ -40,6 +40,9 @@ int main (int argc, char *argv[])
     {
       for(int i = 0; i < 7; i++)
 	{
+	  // Note which player we are on
+	  std::cout << "+---+ PLAYER " << i + 1 << " +---+" << std::endl;
+
 	  // Show the dealer's cards.
 	  std::cout << "The dealer has drawn:" << std::endl <<
 	    (paektu_test.get_dealer()).get_drop_hand_string() << std::endl;
@@ -59,12 +62,16 @@ int main (int argc, char *argv[])
 	    }
 
 	  // Try to grab cards
-	  for(int i = 0; i < 2; i++)
+	  for(int j = 0; j < 2; j++)
 	    {
-	      std::cout << "Your cards are:" << std::endl <<
-		paektu_test.get_player_at(i).get_full_hand_string() << std::endl;
-	      
-	     
+	      try
+		{
+		  paektu_test.get_player_at(i).add_to_drop_hand(get_card(paektu_test.get_player_at(i)));
+		}
+	      catch(std::runtime_error& e)
+		{
+		  return 0;
+		}
 	    }
 
 	}
@@ -133,7 +140,7 @@ long get_wager(Player &player)
   return wager;
 }
 
-Card* get_card(Player &player)
+Card get_card(Player &player)
 {
 
   std::string input;
@@ -142,27 +149,25 @@ Card* get_card(Player &player)
   validity = false;
 
   int selection;
-  Card* card;
-
-  card = NULL;
+  Card card;
 
   while(!validity)
     {
-      input = read_user_input("Please enter the number of the card you wish to use:");
+      input = read_user_input("Please enter the number of the card you wish to use: ");
 
       try
 	{
 	  selection = std::stoi(input);
 	  if((player.get_drop_hand().size() < 2) &&
-	     ((selection > 0) && (selection < 5)))
+	     ((selection > 0) && (selection < 6)))
 	    {
 	      validity = true;
-	      card = &player.get_full_hand().at(selection - 1);
+	      card = player.get_full_hand().at(selection - 1);
 	      std::cout << "You have selected:" << player.get_full_hand().at(selection -1 ).to_string() << std::endl;
 	    }
 	  else
 	    {
-	      std::cout << "Invalid input." << std::endl;
+	      std::cout << "Please select a card between 1 and 5." << std::endl;
 	    }
 	}
       catch(std::invalid_argument e)
@@ -174,7 +179,7 @@ Card* get_card(Player &player)
 	    }
 	  else
 	    {
-	      std::cout << "Invalid input." << std::endl;
+	      std::cout << "Invalid input!" << std::endl;
 	    }
 	}
 

@@ -20,7 +20,7 @@ Paektu::Paektu() : s_deck(40)
   std::stringstream playername;
 
   // Make a generic set of players with 2000 gold pots
-  for(int i = 1; i < s_players.size(); i++) 
+  for(int i = 1; i <= s_players.size(); i++) 
     {
       playername << "Player " << i;
       s_players.at(i - 1) = Player (playername.str(), 2000);
@@ -72,16 +72,16 @@ void Paektu::advance_round()
 		 sum_dealer == 26)
 		{
 		  // Exception to the general round-win conditions
-		  player_round_won(&i);
+		  player_round_won(i);
 		}
 	      else
 		{
-		  player_round_lost(&i);
+		  player_round_lost(i);
 		}
 	    }
 	  else if(sum_dealer < sum_player)
 	    {
-	      player_round_won(&i);
+	      player_round_won(i);
 	    }
 
 	  // Player - Player Relationships
@@ -92,7 +92,7 @@ void Paektu::advance_round()
 	      // Doubles will demote a player.
 	      // You cannot demote a player if all players are on the first tier
 
-	      if(i.get_name() == get_highest_player()->get_name())
+	      if(i.get_name() == get_highest_player().get_name())
 		{
 		  // If the player is the highest player by ranking
 		  // He trumps the attempt at demotion
@@ -115,7 +115,16 @@ void Paektu::advance_round()
 	throw std::runtime_error("Game has been finished already.");
     }
 
-  draw_new_round();
+  // Check to see if someone hasn't gotten to the top of the mountain
+  if(get_highest_player().get_tier() == 7)
+    {
+      s_game_status = COMPLETE;
+    }
+  // Draw a new round if the game is good for another one
+  else
+    {
+      draw_new_round();
+    }
 }
 
 Player& Paektu::get_highest_player()
@@ -152,7 +161,7 @@ void Paektu::player_round_won(Player& player)
 void Paektu::player_round_lost(Player& player)
 {
   // Subtract the wager from their bank
-  player.set_bank(0 - player->get_wager());
+  player.set_bank(0 - player.get_wager());
   player.set_wager(0);
 }
 
@@ -194,6 +203,20 @@ void Paektu::draw_new_round()
       // If there is more than one person at the highest level
       // The pot is split
 
+      // Find the highest tier
+      // Get the players located in that tier
+      // Then split the pot into equal portions
+
+      int* highest_tier;
+      std::array<int, 7> tier_list = get_player_tiers();
+      highest_tier = std::max_element(tier_list.begin(), tier_list.end());
+
+      std::vector<Player*> tier_players;
+      tier_players = get_tier(*highest_tier);
+
+      int split_pot = s_pot / tier_players.size();
+      for(Player* i: tier_players)
+	i->set_bank(split_pot);
     }
 }
 
@@ -254,11 +277,6 @@ std::array<int, 7> Paektu::get_player_tiers()
     }
 
   return tiers;
-}
-
-int Paektu::cmp_tier(int x, int y)
-{
-  return (x - y);
 }
 
 long Paektu::get_current_pot() 

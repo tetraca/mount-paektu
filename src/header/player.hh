@@ -47,6 +47,7 @@ public:
   std::vector<Card> get_drop_hand();
   std::string get_drop_hand_string();
   void set_drop_hand(std::vector<Card> hand);
+  void add_to_drop_hand(Card card);
 
   std::vector<Card> get_full_hand();
   std::string get_full_hand_string();
