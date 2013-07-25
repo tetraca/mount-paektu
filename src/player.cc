@@ -16,8 +16,6 @@
 #include <iostream>
 #include "header/player.hh"
 
-using namespace std;
-
 Player::Player ()
 {
   s_name  = "UNDEFINED_PLAYER";
@@ -28,12 +26,12 @@ Player::Player ()
 }
 
 // Constructors
-Player::Player (string name, long bank) 
+Player::Player (std::string name, long bank) 
 {
   if(name.empty())
-    throw invalid_argument("Player name is blank.");
+    throw std::invalid_argument("Player name is blank.");
   if(bank < 1)
-    throw invalid_argument("Player cannot play if their bank is empty.");
+    throw std::invalid_argument("Player cannot play if their bank is empty.");
 
   s_name  = name;
   s_bank  = bank;
@@ -53,7 +51,7 @@ void Player::new_hand (Deck* deck, int hand_size)
 // Accessor Functions
 
 // For Name
-string Player::get_name () 
+std::string Player::get_name () 
 {
   return s_name;
 }
@@ -77,9 +75,9 @@ long Player::get_wager ()
 void Player::set_wager (long wager) 
 {
   if (wager < 0)
-    throw invalid_argument("Player has attempted to place negative wager.");
+    throw std::invalid_argument("Player has attempted to place negative wager.");
   else if(wager > get_bank())
-    throw invalid_argument("Player has attempted to place a wager greater than the amount of money he has.");
+    throw std::invalid_argument("Player has attempted to place a wager greater than the amount of money he has.");
 
   s_wager = wager;
 }
@@ -93,9 +91,9 @@ int Player::get_tier () const
 void Player::set_tier (int tier)
 {
   if(tier < 0)
-    throw invalid_argument("Player has been placed in negative tier.");
+    throw std::invalid_argument("Player has been placed in negative tier.");
   else if(tier > 6)
-    throw invalid_argument("Player has been placed in excessive tier.");
+    throw std::invalid_argument("Player has been placed in excessive tier.");
   s_tier = tier;
 }
 
@@ -112,23 +110,23 @@ void Player::advance_turn()
 
 
 // For the Drop Hand
-vector<Card> Player::get_drop_hand () 
+std::vector<Card> Player::get_drop_hand () 
 {
   return s_drop_hand;
 }
 std::string Player::get_drop_hand_string()
 {
-  stringstream ss;
+  std::stringstream ss;
 
   for(int i = 0; i < s_drop_hand.size(); i++)
     {
-      ss << i + 1 << ". " << s_drop_hand.at(i).to_string() << endl;
+      ss << i + 1 << ". " << s_drop_hand.at(i).to_string() << std::endl;
     }
 
   return ss.str();
 }
 
-void Player::set_drop_hand (vector<Card> hand) 
+void Player::set_drop_hand (std::vector<Card> hand) 
 {
   // TODO: Make sure drop hand contains valid values. 
   s_drop_hand = hand;
@@ -144,23 +142,23 @@ void Player::add_to_drop_hand (Card card)
 
 
 // For the Full Hand
-vector<Card> Player::get_full_hand() 
+std::vector<Card> Player::get_full_hand() 
 {
   return s_full_hand;
 }
-string Player::get_full_hand_string()
+std::string Player::get_full_hand_string()
 {
-  stringstream ss;
+  std::stringstream ss;
 
   for(int i = 0; i < s_full_hand.size(); i++)
     {
-      ss << i + 1 << ". " << s_full_hand.at(i).to_string() << endl;
+      ss << i + 1 << ". " << s_full_hand.at(i).to_string() << std::endl;
     }
 
   return ss.str();
 }
 
-void Player::set_full_hand(vector<Card> hand) 
+void Player::set_full_hand(std::vector<Card> hand) 
 {
   s_full_hand = hand;
 }
