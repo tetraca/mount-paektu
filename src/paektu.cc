@@ -288,3 +288,11 @@ void Paektu::add_current_pot(long wager)
 {
   s_pot += wager;
 }
+
+bool Paektu::is_complete()
+{
+  if(s_game_status == COMPLETE)
+    return true;
+  else
+    return false;
+}
