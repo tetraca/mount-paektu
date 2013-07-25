@@ -21,7 +21,7 @@
 std::string read_user_input (std::string query);
 long get_wager(Player &player);
 Card get_card(Player &player);
-
+void round_end_summary(Paektu& game);
 
 int main (int argc, char *argv[]) 
 {
@@ -36,12 +36,14 @@ int main (int argc, char *argv[])
 
   std::cout << "Welcome to the mount paektu test utility! Write no to quit at any time." << std::endl;
 
-  while(input.compare("no")) 
+
+  // Continue playing until the user says no, or the game is finished
+  while(!input.compare("no") || !paektu_test.is_complete()) 
     {
       for(int i = 0; i < 7; i++)
 	{
 	  // Note which player we are on
-	  std::cout << "+---+ PLAYER " << i + 1 << " +---+" << std::endl;
+	  std::cout << "-> NEW TURN: PLAYER " << i + 1 << "-<" << std::endl;
 
 	  // Show the dealer's cards.
 	  std::cout << "The dealer has drawn:" << std::endl <<
@@ -56,7 +58,7 @@ int main (int argc, char *argv[])
 	    {
 	      wager = get_wager(paektu_test.get_player_at(i));
 	    }
-	  catch(std::runtime_error e)
+	  catch(std::runtime_error& e)
 	    {
 	      input = "no";
 	    }
@@ -70,13 +72,21 @@ int main (int argc, char *argv[])
 		}
 	      catch(std::runtime_error& e)
 		{
+		  // If we throw a runtime error, quit.
+		  // This should be checked better.
 		  return 0;
 		}
 	    }
-
+	  
+	  // Advance the player's turn
+	  paektu_test.get_player_at(i).advance_turn();
 	}
 
+      // Process all the player's results
       paektu_test.advance_round();
+
+      // Give an end of the round summary.
+      round_end_summary(paektu_test);
     }
 
   return 0;
@@ -125,6 +135,9 @@ long get_wager(Player &player)
 	}
       catch(std::invalid_argument e)
 	{
+	  // If it's not capable of turning into a long
+	  // Make sure to check if the user just doesn't want to quit.
+
 	  if(!input.compare("no"))
 	    {
 	      std::cout << "Goodbye!" << std::endl;
@@ -153,7 +166,7 @@ Card get_card(Player &player)
 
   while(!validity)
     {
-      input = read_user_input("Please enter the number of the card you wish to use: ");
+      input = read_user_input("Please enter the number of the card you wish to use. [1 - 5] ");
 
       try
 	{
@@ -186,4 +199,20 @@ Card get_card(Player &player)
     }
 
   return card;
+}
+
+void round_end_summary(Paektu& game)
+{
+  std::cout << "______________________________" << std::endl;
+  std::cout << "__/   END OF ROUND SUMMARY   /" << std::endl;
+  std::cout << "_/__________________________/ " << std::endl;
+
+  for(int i = 0; i < 7; i++)
+    {
+      Player player = game.get_player_at(i);
+      std::cout << "Standings for: " << player.get_name() << std::endl;
+      std::cout << "  Tier: " << player.get_tier() << std::endl;
+      std::cout << "  Bank: " << player.get_bank() << std::endl;
+      std::cout << std::endl;
+    }
 }
