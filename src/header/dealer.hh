@@ -24,6 +24,6 @@ class Dealer : public Player
 
 public:
   Dealer();
-  std::vector<Card> choose_cards();
+  void choose_cards();
 };
 

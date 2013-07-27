@@ -86,7 +86,7 @@ void Paektu::advance_round()
 	    player.drop_hand()[1].rank();
 
 	  // Player - Player Relationships
-	  if((diff_player == 0) && (get_tier(0).size() < 7))
+	  if((diff_player == 0) && (tier(0).size() < 7))
 	    {
 	      // The case of doubles.
 	      // Doubles will demote a player.
@@ -95,11 +95,11 @@ void Paektu::advance_round()
 
 	      // If the player is the highest player by ranking
 	      // He trumps the attempt at demotion
-	      if(player.name() == get_highest_player().name())
-		  trump = true; 
+	      if(player.name() == highest_player().name())
+		trump = true; 
 
 	      if(!trump)
-		  player_round_lost(get_highest_player());
+		player_round_lost(highest_player());
 	    }
 	}
     }
@@ -112,7 +112,7 @@ void Paektu::advance_round()
     }
 
   // Check to see if someone hasn't gotten to the top of the mountain
-  if(get_highest_player().tier() == 7)
+  if(highest_player().tier() == 7)
     {
       s_game_status = COMPLETE;
     }
@@ -123,7 +123,7 @@ void Paektu::advance_round()
     }
 }
 
-Player& Paektu::get_highest_player()
+Player& Paektu::highest_player()
 {
   std::sort(s_players.begin(), s_players.end(), Player::cmp_player);
 
@@ -134,25 +134,25 @@ void Paektu::player_round_won(Player& player)
 {
   // Grab all the players being held in the next tier
   int next_tier = player.tier() + 1;
-  std::vector<Player*> tier = tier(next_tier);
+  QVector<Player*> ntier = tier(next_tier);
 
   // Check to see if the tier is full
-  if(tier.size() >= next_tier)
+  if(ntier.size() >= next_tier)
     {
       // When the next tier is full
       // Demote a player in that tier
       // The first that appears in that tier will suffice
-      tier.at(0)->player.demote_player();
+      ntier.at(0)->demote_player();
     }
 
   // Finally, place the player into a new tier
-  player.set_tier(player.tier() + 1);
+  player.promote_player();
 }
 
 void Paektu::player_round_lost(Player& player)
 {
   // Subtract the wager from their bank
-  player.set_bank(0 - player.get_wager());
+  player.set_bank(0 - player.wager());
   player.set_wager(0);
 }
 
@@ -165,9 +165,9 @@ void Paektu::draw_new_round()
       try
 	{
 	  // Draw a new dealer hand.
-	  s_dealer.set_full_hand(s_deck.draw_hand(5));
 	  // Run the dealer AI, this will go into the drop hand
-	  s_dealer.set_drop_hand(s_dealer.choose_cards());
+	  s_dealer.new_hand(&s_deck, 5);
+	  s_dealer.choose_cards();
 
 	  // Draw a new hand for each player.
 	  for(Player &i : s_players)
@@ -199,11 +199,11 @@ void Paektu::draw_new_round()
       // Then split the pot into equal portions
 
       int* highest_tier;
-      std::array<int, 7> tier_list = get_player_tiers();
+      QVector<int> tier_list = player_tiers();
       highest_tier = std::max_element(tier_list.begin(), tier_list.end());
 
-      std::vector<Player*> tier_players;
-      tier_players = get_tier(*highest_tier);
+      QVector<Player*> tier_players;
+      tier_players = tier(*highest_tier);
 
       int split_pot = s_pot / tier_players.size();
       for(Player* i: tier_players)
@@ -214,10 +214,10 @@ void Paektu::draw_new_round()
 
 bool Paektu::are_players_synchronized()
 {
-  for(Player i : s_players)
+  for(Player &player : s_players)
     {
       // Return false at the first sign of problems.
-      if(i.get_turn() != s_current_turn)
+      if(player.turn() != s_current_turn)
 	return false;
     }
 
@@ -232,7 +232,7 @@ Player& Paektu::get_player_at(int i)
   else if(i > 6)
     throw std::invalid_argument("Tried to get player at more than six");
 
-  return s_players.at(i);
+  return s_players[i];
 }
 
 Dealer& Paektu::get_dealer()
@@ -249,22 +249,22 @@ QVector<Player*> Paektu::tier(int tier)
 
   QVector<Player*> players_of_tier;
 
-  for(Player &i : s_players) 
+  for(Player &player : s_players) 
     {
-      if(i.get_tier() == tier)
-	players_of_tier.push_back(&i);
+      if(player.tier() == tier)
+	players_of_tier.push_back(&player);
     }
 
   return players_of_tier;
 }
 
-std::array<int, 7> Paektu::get_player_tiers()
+QVector<int> Paektu::player_tiers()
 {
-  std::array<int, 7> tiers;
+  QVector<int> tiers;
 
   for(int i = 0; i < 7; i++)
     {
-      tiers.at(i) = s_players.at(i).get_tier();
+      tiers[i] = s_players[i].tier();
     }
 
   return tiers;

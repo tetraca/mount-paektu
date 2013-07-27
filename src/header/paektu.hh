@@ -29,9 +29,7 @@ public:
 
   void advance_round();
 
-  QVector<Player*> get_tier(int tier);
-  QVector<int> get_player_tiers();
-  Player& get_highest_player();
+  QVector<Player*> tier(int tier);
 
   long get_current_pot();
   void add_current_pot(long wager);
@@ -55,4 +53,7 @@ private:
 
   bool are_players_synchronized();
   void draw_new_round();
+  Player& highest_player();
+  QVector<int> player_tiers();
+
 };
