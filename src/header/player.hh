@@ -12,8 +12,8 @@
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <string>
-#include <vector>
+#include <QString>
+#include <QVector>
 #include <stdexcept>
 
 #include "card.hh"
@@ -25,40 +25,44 @@ class Player
 {
 public:
   Player();
-  Player(std::string name, long bank);
+  Player(QString name, long bank);
 
   void new_hand(Deck* deck, int hand_size);
 
-  // Accessors
-  std::string get_name();
+  QString name() const;
 
-  long get_bank();
+  long bank() const;
   void set_bank(long displacement);
 
-  long get_wager();
+  long wager() const;
   void set_wager(long wager);
 
-  int  get_tier() const;
-  void set_tier(int tier);
+  int  tier() const;
+  void promote_player();
+  void demote_player();
 
-  int  get_turn();
+  int  turn() const;
   void advance_turn();
 
-  std::vector<Card> get_drop_hand();
-  std::string get_drop_hand_string();
-  void set_drop_hand(std::vector<Card> hand);
-  void add_to_drop_hand(Card card);
+  QVector<Card> drop_hand() const;
+  QString drop_hand_string() const;
 
-  std::vector<Card> get_full_hand();
-  std::string get_full_hand_string();
-  void set_full_hand(std::vector<Card> hand);
+  void add_to_drop_hand(Card card);
+  void clear_drop_hand();
+
+  QVector<Card> full_hand() const;
+  QString full_hand_string() const;
+
+
+  static bool cmp_player(const Player& x, const Player& y);
+
 
 protected:
   long s_bank;
-  std::string s_name; 
+  QString s_name; 
   long s_wager;
-  std::vector<Card> s_drop_hand;
-  std::vector<Card> s_full_hand;
+  QVector<Card> s_drop_hand;
+  QVector<Card> s_full_hand;
   int s_turn;
   int s_tier;
 };

@@ -20,8 +20,8 @@ Deck::Deck (int stacks)
   if(stacks < 1)
     throw std::invalid_argument("Deck: Stacks declared are less than one.");
 
-  this->stacks = stacks;
-  out_of_cards = false;
+  stacks = s_stacks;
+  s_out_of_cards = false;
 
   build_deck();
   shuffle();
@@ -33,10 +33,10 @@ Card Deck::draw_card ()
 
   // If the card deck isn't empty
   // Grab a card, and pop that off its end
-  if(!card_deck.empty())
+  if(!s_card_deck.empty())
     {
-      drawn_card = card_deck.back();
-      card_deck.pop_back();
+      drawn_card = s_card_deck.back();
+      s_card_deck.pop_back();
     }
   else
     {
@@ -46,13 +46,13 @@ Card Deck::draw_card ()
   return drawn_card;
 }
 
-std::vector<Card> Deck::draw_hand (int n) 
+QVector<Card> Deck::draw_hand (int n) 
 {
-  std::vector<Card> drawn_cards;
+  QVector<Card> drawn_cards;
 
   if(!is_out_of_cards())
     {
-      if(card_deck.size() >= n)
+      if(s_card_deck.size() >= n)
 	{
 	  // Draw the cards from the deck
 	  for(int i = 0; i < n; i++) 
@@ -62,10 +62,10 @@ std::vector<Card> Deck::draw_hand (int n)
 	{
 	  // Draw the remainder of the cards and signal
 	  // That the deck is out of cards
-	  for(int i = 0; i < card_deck.size(); i++)
+	  for(int i = 0; i < s_card_deck.size(); i++)
 	    drawn_cards.push_back(draw_card());
 
-	  out_of_cards = true;
+	  s_out_of_cards = true;
 	}
     }
   else
@@ -78,7 +78,7 @@ std::vector<Card> Deck::draw_hand (int n)
 
 bool Deck::is_out_of_cards()
 {
-  return out_of_cards;
+  return s_out_of_cards;
 }
 
 
@@ -87,7 +87,7 @@ void Deck::build_deck ()
   Card::Suit deck_suit;
 
   // Repeat for number of deck stacks
-  for (int s = 0; s < stacks; s++) {
+  for (int s = 0; s < s_stacks; s++) {
     // Repeat for each card suit
     for (int i = 0; i < 4; i++) {
       if (i == 0)
@@ -101,13 +101,26 @@ void Deck::build_deck ()
 
       // Repeat for each card rank
       for (int j = 1; j < 14; j++) 
-	this->card_deck.push_back(Card(j, deck_suit));
+	s_card_deck.push_back(Card(j, deck_suit));
     }
   }
 }
 
 void Deck::shuffle () 
 {
-  // This could have been complicated but standard library saved the day.
-  std::random_shuffle(card_deck.begin(), card_deck.end());
+  // Seed RNG
+  qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+
+  // Iterate across the deck, swapping a random card
+  // with the currently selected card
+  for(int i = 0; i < s_card_deck.size(); i++)
+    {
+      // Select a random card
+      int sel = qrand() % s_card_deck.size();
+
+      // Swap the randomly selected card
+      Card card = s_card_deck.at(i);
+      s_card_deck[i] = s_card_deck[sel];
+      s_card_deck[sel] = card;
+    }
 }

@@ -13,11 +13,10 @@
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <iostream>
-#include <algorithm>
-#include <string>
-#include <vector>
-#include <array>
 #include <stdexcept>
+
+#include <QString>
+#include <QVector>
 
 #include "deck.hh"
 #include "player.hh"
@@ -30,29 +29,27 @@ public:
 
   void advance_round();
 
-  std::vector<Player*> get_tier(int tier);
-  std::array<int, 7> get_player_tiers();
+  QVector<Player*> get_tier(int tier);
+  QVector<int> get_player_tiers();
   Player& get_highest_player();
-  static bool cmp_player(const Player& x, const Player& y);
 
   long get_current_pot();
   void add_current_pot(long wager);
 
   enum GameStatus {PLAYING, COMPLETE};
   bool is_complete();
-  Player& get_player_at(int i);
 
+  Player& get_player_at(int i);
   Dealer& get_dealer();
 
   void player_round_won(Player& player);
   void player_round_lost(Player& player);
 
-
 private:
   int                   s_current_turn;
   Deck                  s_deck;
   long                  s_pot;
-  std::array<Player, 7> s_players;
+  QVector<Player>       s_players;
   Dealer                s_dealer;
   GameStatus            s_game_status;
 
