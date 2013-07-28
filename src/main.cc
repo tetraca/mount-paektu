@@ -14,6 +14,7 @@
 
 
 #include <iostream>
+#include <sstream>
 #include "header/player.hh"
 #include "header/dealer.hh"
 #include "header/paektu.hh"
@@ -30,7 +31,11 @@ int main (int argc, char *argv[])
 
   long wager;
 
+  std::cout << "Hello." << std::endl;
+
   Paektu paektu_test;
+
+  std::cout << "Paektu Initialized." << std::endl;
 
   input = "default";
 
@@ -47,11 +52,11 @@ int main (int argc, char *argv[])
 
 	  // Show the dealer's cards.
 	  std::cout << "The dealer has drawn:" << std::endl <<
-	    (paektu_test.get_dealer()).get_drop_hand_string() << std::endl;
+	    (paektu_test.get_dealer()).drop_hand_string().toUtf8().constData() << std::endl;
 
 	  // Show your cards.
 	  std::cout << "You have drawn:" << std::endl <<
-	    (paektu_test.get_player_at(i)).get_full_hand_string() << std::endl;
+	    (paektu_test.get_player_at(i)).full_hand_string().toUtf8().constData() << std::endl;
 
 	  // Get the wager
 	  try
@@ -120,9 +125,9 @@ long get_wager(Player &player)
   while(!validity || !input.compare("no"))
     {
       // Get a wager.
-      ss << player.get_name() 
+      ss << player.name().toUtf8().constData() 
 	 << ", what is your wager? [Max " 
-	 << player.get_bank() << "] ";
+	 << player.bank() << "] ";
       input = read_user_input(ss.str());
       ss.str(std::string());
 
@@ -171,12 +176,12 @@ Card get_card(Player &player)
       try
 	{
 	  selection = std::stoi(input);
-	  if((player.get_drop_hand().size() < 2) &&
+	  if((player.drop_hand().size() < 2) &&
 	     ((selection > 0) && (selection < 6)))
 	    {
 	      validity = true;
-	      card = player.get_full_hand().at(selection - 1);
-	      std::cout << "You have selected:" << player.get_full_hand().at(selection -1 ).to_string() << std::endl;
+	      card = player.full_hand().at(selection - 1);
+	      std::cout << "You have selected:" << player.full_hand().at(selection -1 ).to_string().toUtf8().constData() << std::endl;
 	    }
 	  else
 	    {
@@ -210,9 +215,9 @@ void round_end_summary(Paektu& game)
   for(int i = 0; i < 7; i++)
     {
       Player player = game.get_player_at(i);
-      std::cout << "Standings for: " << player.get_name() << std::endl;
-      std::cout << "  Tier: " << player.get_tier() << std::endl;
-      std::cout << "  Bank: " << player.get_bank() << std::endl;
+      std::cout << "Standings for: " << player.name().toUtf8().constData() << std::endl;
+      std::cout << "  Tier: " << player.tier() << std::endl;
+      std::cout << "  Bank: " << player.bank() << std::endl;
       std::cout << std::endl;
     }
 }
