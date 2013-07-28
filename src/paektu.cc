@@ -18,7 +18,7 @@
 Paektu::Paektu() : s_deck(40), s_pot(0), s_game_status(PLAYING)
 {
   // Debug constructor
-
+  std::cout << "Paektu:: Initializing Game." << std::endl;
 
   // Build 40 stack deck
   // Since a game is played with 7 players and a dealer
@@ -166,12 +166,14 @@ void Paektu::draw_new_round()
 	{
 	  // Draw a new dealer hand.
 	  // Run the dealer AI, this will go into the drop hand
-	  s_dealer.new_hand(&s_deck, 5);
+	  s_dealer.new_hand(s_deck, 5);
 	  s_dealer.choose_cards();
 
 	  // Draw a new hand for each player.
-	  for(Player &i : s_players)
-	    i.new_hand(&s_deck, 5);
+	  for(Player &player : s_players)
+	    player.new_hand(s_deck, 5);
+
+	  std::cout << "Drew cards for all players." << std::endl;
 
 	  // Advance the turn we are currently on.
 	  s_current_turn++;

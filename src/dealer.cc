@@ -12,6 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <iostream>
 #include "header/dealer.hh"
 
 Dealer::Dealer()
@@ -21,7 +22,8 @@ Dealer::Dealer()
 
 void Dealer::choose_cards()
 {
-  std::sort(s_full_hand.begin(), s_full_hand.end(), Card::compare);
+  std::cout << "Size of dealer hand: " << s_full_hand.size() << std::endl;
+  qSort(s_full_hand.begin(), s_full_hand.end(), Card::compare);
   // Get the highest rated cards
   // Put them in the drop hand
   add_to_drop_hand(s_full_hand[0]);
