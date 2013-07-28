@@ -12,6 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <iostream>
 #include "header/player.hh"
 
 Player::Player()
@@ -26,7 +27,7 @@ Player::Player()
 }
 
 // Constructors
-Player::Player(QString name, long bank) 
+Player::Player(QString name, long bank) : s_wager(0), s_turn(0), s_tier(0), s_full_hand(5), s_drop_hand(0)
 {
   if(name.isEmpty())
     throw std::invalid_argument("Player name is blank.");
@@ -35,17 +36,18 @@ Player::Player(QString name, long bank)
 
   s_name  = name;
   s_bank  = bank;
-  s_wager = 0;
-  s_turn  = 0;
-  s_tier  = 0;
 }
 
 // General Functions
-void Player::new_hand(Deck* deck, int hand_size) 
+void Player::new_hand(Deck deck, int hand_size) 
 {
   // This should be the only way to remove the full hand
   s_full_hand.clear();
-  s_full_hand = deck->draw_hand(hand_size);
+  QVector<Card> temp(deck.draw_hand(hand_size));
+  for(int i = 0; i < hand_size; i++)
+    s_full_hand.append(temp[i]);
+
+  std::cout << "Dispensing " << s_full_hand.size() << " cards" << std::endl;
 }
 
 

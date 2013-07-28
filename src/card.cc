@@ -14,12 +14,10 @@
 
 #include "header/card.hh"
 
-Card::Card () 
+Card::Card () : s_rank(0), s_suit(UNDEFINED)
 {
-  // A "blank" card. Appears as the zero of spades.
+  // A "blank" card. Appears as the zero of UNDEFINED
   // If you see a zero of spades, something bad happened.
-  s_rank = 0;
-  s_suit = UNDEFINED;
 }
 
 Card::Card (int rank, Card::Suit suit) 

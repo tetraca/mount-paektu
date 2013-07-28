@@ -27,7 +27,7 @@ public:
   Player();
   Player(QString name, long bank);
 
-  void new_hand(Deck* deck, int hand_size);
+  void new_hand(Deck deck, int hand_size);
 
   QString name() const;
 
