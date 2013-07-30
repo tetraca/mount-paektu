@@ -15,8 +15,21 @@
 #include "header/paektu.hh"
 
 // Debug constructor
-Paektu::Paektu() : s_deck(40)
+Paektu::Paektu() : s_deck(40), 
+		   s_pot(0),
+		   s_game_status(PLAYING)
 {
+  // Notes on Initialization:
+
+  // - Build 40 stack deck
+  //      Since a game is played with 7 players and a dealer
+  //      Each drawing 5 cards, this will ensure that there will
+  //      Never be a case where the game ends with an unequal quantity
+  //      of cards
+  // - The lcm for us to never run out of cards off round is 10 decks.
+  // - Set the pot to zero
+  // - Note the game is PLAYING rather than FINISHED
+
   std::stringstream playername;
 
   // Make a generic set of players with 2000 gold pots
@@ -26,20 +39,6 @@ Paektu::Paektu() : s_deck(40)
       s_players.at(i - 1) = Player (playername.str(), 2000);
       playername.str(std::string());
     }
-
-  // Build 40 stack deck
-  // Since a game is played with 7 players and a dealer
-  // Each drawing 5 cards, this will ensure that there will
-  // Never be a case where the game ends with an unequal quantity
-  // of cards
-
-  // The lcm for us to never run out of cards off round is 10 decks.
-
-
-  // Set the pot to zero
-  // Note the game is PLAYING rather than FINISHED
-  s_pot = 0;
-  s_game_status = PLAYING;
 
   // Draw a new round
   draw_new_round();
@@ -52,47 +51,48 @@ void Paektu::advance_round()
     {
       // Sum the two cards the dealer picked.
       int sum_dealer = 
-	s_dealer.get_drop_hand().at(0).get_rank() +
-	s_dealer.get_drop_hand().at(1).get_rank();
+	s_dealer.drop_hand().at(0).rank() +
+	s_dealer.drop_hand().at(1).rank();
 
       int sum_player;
+      int diff_player;
       bool trump = false;
 
-      for(Player &i : s_players)
+      for(Player &player : s_players)
 	{
 	  // Sum the two cards the current player picked.
 	  sum_player = 
-	    i.get_drop_hand().at(0).get_rank() +
-	    i.get_drop_hand().at(1).get_rank();
+	    player.drop_hand().at(0).rank() +
+	    player.drop_hand().at(1).rank();
 
 	  // Dealer - Player Relationships
 	  if(sum_dealer > sum_player)
 	    {
-	      if(sum_player == 2 && 
-		 sum_dealer == 26)
-		{
-		  // Exception to the general round-win conditions
-		  player_round_won(i);
-		}
+	      // Exception to the general round-win conditions
+	      // A pair of aces beats a pair of kings
+	      if((sum_player == 2) && (sum_dealer == 26))
+		round_won(player);
 	      else
-		{
-		  player_round_lost(i);
-		}
+		round_lost(player);
 	    }
 	  else if(sum_dealer < sum_player)
 	    {
-	      player_round_won(i);
+	      round_won(player);
 	    }
 
+	  // When diff player = 0 doubles have been reached
+	  diff_player = 
+	    player.drop_hand().at(0).rank() -
+	    player.drop_hand().at(1).rank();
+
 	  // Player - Player Relationships
-	  if((i.get_drop_hand().at(0).get_rank() == i.get_drop_hand().at(1).get_rank())
-	     && (get_tier(0).size() < 7))
+	  if((diff_player == 0) && (tier_residents(7).size() < 7))
 	    {
 	      // The case of doubles.
 	      // Doubles will demote a player.
 	      // You cannot demote a player if all players are on the first tier
 
-	      if(i.get_name() == get_highest_player().get_name())
+	      if(player.name() == highest_player().name())
 		{
 		  // If the player is the highest player by ranking
 		  // He trumps the attempt at demotion
@@ -102,7 +102,7 @@ void Paektu::advance_round()
 	      if(!trump)
 		{
 		  // Demote the highest player if there's a double
-		  player_round_lost(get_highest_player());
+		  round_lost(highest_player());
 		}
 	    }
 	}
@@ -116,7 +116,7 @@ void Paektu::advance_round()
     }
 
   // Check to see if someone hasn't gotten to the top of the mountain
-  if(get_highest_player().get_tier() == 7)
+  if(highest_player().tier() == 1)
     {
       s_game_status = COMPLETE;
     }
@@ -127,7 +127,7 @@ void Paektu::advance_round()
     }
 }
 
-Player& Paektu::get_highest_player()
+Player& Paektu::highest_player()
 {
   std::sort(s_players.begin(), s_players.end(), Paektu::cmp_player);
 
@@ -139,11 +139,11 @@ bool Paektu::cmp_player(const Player& x, const Player& y)
   return x.get_tier() < y.get_tier();
 }
 
-void Paektu::player_round_won(Player& player)
+void Paektu::round_won(Player& player)
 {
   // Grab all the players being held in the next tier
   int next_tier = player.get_tier() + 1;
-  std::vector<Player*> tier = get_tier(next_tier);
+  std::vector<Player*> tier = tier_residents(next_tier);
 
   // Check to see if the tier is full
   if(tier.size() >= next_tier)
@@ -151,15 +151,18 @@ void Paektu::player_round_won(Player& player)
       // When the next tier is full
       // Demote a player in that tier
       // The first that appears in that tier will suffice
-      tier.at(0)->set_tier(tier.at(0)->get_tier() - 1);
+      tier.at(0)->demote_tier();
     }
 
   // Finally, place the player into a new tier
-  player.set_tier(player.get_tier() + 1);
+  player.promote_tier();
 }
 
-void Paektu::player_round_lost(Player& player)
+void Paektu::round_lost(Player& player)
 {
+  // Add wager to pot
+  add_current_pot(player.wager());
+
   // Subtract the wager from their bank
   player.set_bank(0 - player.get_wager());
   player.set_wager(0);
@@ -174,13 +177,13 @@ void Paektu::draw_new_round()
       try
 	{
 	  // Draw a new dealer hand.
-	  s_dealer.set_full_hand(s_deck.draw_hand(5));
+	  s_dealer.new_hand(&s_deck, 5);
 	  // Run the dealer AI, this will go into the drop hand
-	  s_dealer.set_drop_hand(s_dealer.choose_cards());
+	  s_dealer.choose_cards();
 
 	  // Draw a new hand for each player.
-	  for(Player &i : s_players)
-	    i.new_hand(&s_deck, 5);
+	  for(Player &player : s_players)
+	    player.new_hand(&s_deck, 5);
 
 	  // Advance the turn we are currently on.
 	  s_current_turn++;
@@ -234,7 +237,7 @@ bool Paektu::are_players_synchronized()
   return true;
 }
 
-Player& Paektu::get_player_at(int i)
+Player& Paektu::player_at(int i)
 {
   if(i < 0)
     throw std::invalid_argument("Tried to get player at less than zero");
@@ -244,12 +247,12 @@ Player& Paektu::get_player_at(int i)
   return s_players.at(i);
 }
 
-Dealer& Paektu::get_dealer()
-{
-  return s_dealer;
-}
 
-std::vector<Player*> Paektu::get_tier(int tier) 
+Dealer& Paektu::dealer()      const { return s_dealer; }
+long    Paektu::current_pot() const { return s_pot; }
+bool    Paektu::is_complete() const { return (s_game_status == COMPLETE); }
+
+std::vector<Player*> Paektu::tier_residents(int tier) 
 {
   if(tier > 6)
     throw std::invalid_argument("get_tier supplied with tier > 6");
@@ -258,16 +261,16 @@ std::vector<Player*> Paektu::get_tier(int tier)
 
   std::vector<Player*> players_of_tier;
 
-  for(Player &i : s_players) 
+  for(Player &player : s_players) 
     {
-      if(i.get_tier() == tier)
-	players_of_tier.push_back(&i);
+      if(player.tier() == tier)
+	players_of_tier.push_back(&player);
     }
 
   return players_of_tier;
 }
 
-std::array<int, 7> Paektu::get_player_tiers()
+std::array<int, 7> Paektu::tier_list()
 {
   std::array<int, 7> tiers;
 
@@ -279,20 +282,10 @@ std::array<int, 7> Paektu::get_player_tiers()
   return tiers;
 }
 
-long Paektu::get_current_pot() 
-{
-  return s_pot;
-}
+
 
 void Paektu::add_current_pot(long wager) 
 {
   s_pot += wager;
 }
 
-bool Paektu::is_complete()
-{
-  if(s_game_status == COMPLETE)
-    return true;
-  else
-    return false;
-}

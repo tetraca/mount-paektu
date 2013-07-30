@@ -16,17 +16,24 @@
 #include <iostream>
 #include "header/player.hh"
 
-Player::Player ()
+
+/* * * * * * * * * * * 
+ * Constructors
+ * * * * * * * * * * */
+Player::Player () : s_name("UNDEFINED_PLAYER"),
+		    s_bank(1),
+		    s_wager(0),
+		    s_turn(0),
+		    s_tier(7)
 {
-  s_name  = "UNDEFINED_PLAYER";
-  s_bank  = 200;
-  s_wager = 0;
-  s_turn  = 0;
-  s_tier  = 0;
+  // This is a blank character template
+  // For the purposes of allowing you to initialize
+  // an array of players before knowing who they are
 }
 
-// Constructors
-Player::Player (std::string name, long bank) 
+Player::Player (std::string name, long bank) : s_wager(0),
+					       s_turn(0),
+					       s_tier(7)
 {
   if(name.empty())
     throw std::invalid_argument("Player name is blank.");
@@ -35,41 +42,22 @@ Player::Player (std::string name, long bank)
 
   s_name  = name;
   s_bank  = bank;
-  s_wager = 0;
-  s_turn  = 0;
-  s_tier  = 0;
 }
 
-// General Functions
+
+
+/* * * * * * * * * *
+ * General Functions
+ * * * * * * * * * */
 void Player::new_hand (Deck* deck, int hand_size) 
 {
+  s_full_hand.clear();
   s_full_hand = deck->draw_hand(hand_size);
 }
 
-
-
-// Accessor Functions
-
-// For Name
-std::string Player::get_name () 
-{
-  return s_name;
-}
-
-// For bank
-long Player::get_bank () 
-{
-  return s_bank;
-}
-void Player::set_bank (long displacement) 
+void Player::add_bank (long displacement) 
 {
   s_bank = s_bank + displacement;
-}
-
-// For Wager
-long Player::get_wager () 
-{
-  return s_wager;
 }
 
 void Player::set_wager (long wager) 
@@ -82,38 +70,50 @@ void Player::set_wager (long wager)
   s_wager = wager;
 }
 
-// For the current tier
-int Player::get_tier () const
+void Player::promote_tier ()
 {
-  return s_tier;
+  // Promote a player only if they are below tier 1
+  if(s_tier > 1)
+    s_tier--;
 }
 
-void Player::set_tier (int tier)
+void Player::demote_tier ()
 {
-  if(tier < 0)
-    throw std::invalid_argument("Player has been placed in negative tier.");
-  else if(tier > 6)
-    throw std::invalid_argument("Player has been placed in excessive tier.");
-  s_tier = tier;
+  // Demote a player only if they are on a tier lower than 7
+  if(s_tier < 7)
+    s_tier++;
 }
 
-// For the current turn
-int Player::get_turn()
-{
-  return s_turn;
-}
-
-void Player::advance_turn()
+void Player::advance_turn ()
 {
   s_turn++;
 }
 
-
-// For the Drop Hand
-std::vector<Card> Player::get_drop_hand () 
+void Player::push_drop_hand(Card card)
 {
-  return s_drop_hand;
+  if(s_drop_hand.size() < 3)
+    s_drop_hand.push_back(card);
+  else
+    throw std::invalid_argument("Cannot add more cards to your hand");
 }
+
+bool Player::compare(const Player& x, const Player& y)
+{
+  return x.tier() > y.tier();
+}
+
+// Accessor Functions
+std::string Player::name () const { return s_name; }
+long        Player::bank () const { return s_bank; }
+long        Player::wager() const { return s_wager;} 
+int         Player::tier () const { return s_tier; }
+int         Player::turn () const { return s_turn; }
+
+std::vector<Card> Player::drop_hand() const { return s_drop_hand; }
+std::vector<Card> Player::full_hand() const { return s_full_hand; }
+
+
+// Display functions purely for the test client
 std::string Player::get_drop_hand_string()
 {
   std::stringstream ss;
@@ -126,26 +126,6 @@ std::string Player::get_drop_hand_string()
   return ss.str();
 }
 
-void Player::set_drop_hand (std::vector<Card> hand) 
-{
-  // TODO: Make sure drop hand contains valid values. 
-  s_drop_hand = hand;
-}
-
-void Player::add_to_drop_hand (Card card)
-{
-  if(s_drop_hand.size() < 3)
-    s_drop_hand.push_back(card);
-  else
-    throw std::invalid_argument("Cannot add more cards to your hand");
-}
-
-
-// For the Full Hand
-std::vector<Card> Player::get_full_hand() 
-{
-  return s_full_hand;
-}
 std::string Player::get_full_hand_string()
 {
   std::stringstream ss;
@@ -157,6 +137,14 @@ std::string Player::get_full_hand_string()
 
   return ss.str();
 }
+
+// Deprecated functions
+void Player::set_drop_hand (std::vector<Card> hand) 
+{
+  // TODO: Make sure drop hand contains valid values. 
+  s_drop_hand = hand;
+}
+
 
 void Player::set_full_hand(std::vector<Card> hand) 
 {

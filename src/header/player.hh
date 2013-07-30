@@ -24,36 +24,37 @@
 class Player 
 {
 public:
+  // Constructors
   Player();
   Player(std::string name, long bank);
 
+  // General Functions
   void new_hand(Deck* deck, int hand_size);
+  void add_bank(long displacement);
+  void set_wager(long wager);
+  void promote_tier();
+  void demote_tier();
+  void advance_turn();
+  void push_drop_hand(Card card);
+
+  static bool compare(const Player& x, const Player& y);
 
   // Accessors
-  std::string get_name();
+  std::string name() const;
+  long bank() const;
+  long wager() const;
+  int  tier() const;
+  int  turn() const;
 
-  long get_bank();
-  void set_bank(long displacement);
+  std::vector<Card> drop_hand();
+  std::vector<Card> full_hand();
 
-  long get_wager();
-  void set_wager(long wager);
-
-  int  get_tier() const;
-  void set_tier(int tier);
-
-  int  get_turn();
-  void advance_turn();
-
-  std::vector<Card> get_drop_hand();
-  std::string get_drop_hand_string();
-  void set_drop_hand(std::vector<Card> hand);
-  void add_to_drop_hand(Card card);
-
-  std::vector<Card> get_full_hand();
-  std::string get_full_hand_string();
-  void set_full_hand(std::vector<Card> hand);
+  // Debug
+  std::string drop_hand_string();
+  std::string full_hand_string();
 
 protected:
+  // State
   long s_bank;
   std::string s_name; 
   long s_wager;
@@ -61,4 +62,8 @@ protected:
   std::vector<Card> s_full_hand;
   int s_turn;
   int s_tier;
+
+  // Deprecated
+  void set_drop_hand(std::vector<Card> hand);
+  void set_full_hand(std::vector<Card> hand);
 };

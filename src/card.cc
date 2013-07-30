@@ -33,17 +33,17 @@ Card::Card (int rank, Card::Suit suit)
   s_suit = suit;
 }
 
-int Card::get_rank () 
+int Card::rank () const
 {
   return s_rank;
 }
 
-Card::Suit Card::get_suit () 
+Card::Suit Card::suit () const 
 {
   return s_suit;
 }
 
-std::string Card::get_suit_as_string ()
+std::string Card::suit_as_string ()
 {
   // This function exists purely for debug purposes.
 
@@ -69,13 +69,13 @@ std::string Card::to_string ()
 
   std::ostringstream ss;
   
-  ss << s_rank << " of " << get_suit_as_string();
+  ss << s_rank << " of " << suit_as_string();
   
   return ss.str();
 }
 
-int Card::compare(Card card1, Card card2)
+bool Card::compare(Card card1, Card card2)
 {
-  return card1.get_rank() - card2.get_rank();
+  return card1.rank() > card2.rank();
 }
 

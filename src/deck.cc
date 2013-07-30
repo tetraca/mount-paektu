@@ -15,14 +15,14 @@
 
 #include "header/deck.hh"
 
-Deck::Deck (int stacks) 
+Deck::Deck (int stacks) : s_out_of_cards(false)
 {
   if(stacks < 1)
     throw std::invalid_argument("Deck: Stacks declared are less than one.");
 
-  this->stacks = stacks;
-  out_of_cards = false;
+  s_stacks = stacks;
 
+  // Build an ordered deck, then shuffle it.
   build_deck();
   shuffle();
 }
@@ -65,7 +65,7 @@ std::vector<Card> Deck::draw_hand (int n)
 	  for(int i = 0; i < card_deck.size(); i++)
 	    drawn_cards.push_back(draw_card());
 
-	  out_of_cards = true;
+	  s_out_of_cards = true;
 	}
     }
   else
@@ -78,7 +78,7 @@ std::vector<Card> Deck::draw_hand (int n)
 
 bool Deck::is_out_of_cards()
 {
-  return out_of_cards;
+  return s_out_of_cards;
 }
 
 
@@ -87,7 +87,7 @@ void Deck::build_deck ()
   Card::Suit deck_suit;
 
   // Repeat for number of deck stacks
-  for (int s = 0; s < stacks; s++) {
+  for (int s = 0; s < s_stacks; s++) {
     // Repeat for each card suit
     for (int i = 0; i < 4; i++) {
       if (i == 0)
@@ -101,13 +101,13 @@ void Deck::build_deck ()
 
       // Repeat for each card rank
       for (int j = 1; j < 14; j++) 
-	this->card_deck.push_back(Card(j, deck_suit));
+	s_card_deck.push_back(Card(j, deck_suit));
     }
   }
 }
 
 void Deck::shuffle () 
 {
-  // This could have been complicated but standard library saved the day.
+  // NOTE: Consider implementing Knuth shuffle
   std::random_shuffle(card_deck.begin(), card_deck.end());
 }

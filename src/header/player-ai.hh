@@ -12,28 +12,23 @@
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
-
-#include <algorithm>
 #include <vector>
-#include <exception>
+#include <algorithm>
 
 #include "card.hh"
+#include "player.hh"
+#include "dealer.hh"
 
 #pragma once
 
-class Deck 
+class PlayerAI
 {
 public:
-  Deck(int stacks);
-  Card draw_card();
-  std::vector<Card> draw_hand(int n);
-  bool is_out_of_cards();
+  PlayerAI(Player* player, Dealer* dealer);
+  
+  void consider();
 
 private:
-  std::vector<Card> s_card_deck;
-  int               s_stacks;
-  bool              s_out_of_cards;
-
-  void build_deck();
-  void shuffle();
+  Player*  s_player;
+  Dealer*  s_dealer;
 };

@@ -26,8 +26,8 @@ public:
 
   Card();
   Card(int rank, Suit suit);
-  int  get_rank();
-  Suit get_suit();
+  int  rank() const;
+  Suit suit() const;
   std::string to_string();
 
   static int compare(Card card1, Card card2);
@@ -35,5 +35,5 @@ public:
 private:
   int  s_rank;
   Suit s_suit;
-  std::string get_suit_as_string();
+  std::string suit_as_string();
 };
