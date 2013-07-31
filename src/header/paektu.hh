@@ -12,11 +12,11 @@
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <iostream>
+#include <string>
+#include <vector>
+#include <array>
+#include <sstream>
 #include <stdexcept>
-
-#include <QString>
-#include <QVector>
 
 #include "deck.hh"
 #include "player.hh"
@@ -47,13 +47,12 @@ private:
   int                   s_current_turn;
   Deck                  s_deck;
   long                  s_pot;
-  QVector<Player>       s_players;
+  std::vector<Player>   s_players;
   Dealer                s_dealer;
   GameStatus            s_game_status;
 
   bool are_players_synchronized();
   void draw_new_round();
   Player& highest_player();
-  QVector<int> player_tiers();
-
+  std::vector<int> player_tiers();
 };

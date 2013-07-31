@@ -15,35 +15,26 @@
 #include <iostream>
 #include "header/player.hh"
 
-<<<<<<< HEAD
-Player::Player()
-=======
-using namespace std;
-
-Player::Player ()
->>>>>>> parent of b87a8a7... Minor bug fixes
+/* * * * * * * * * * * 
+ * Constructors
+ * * * * * * * * * * */
+Player::Player () : s_name("UNDEFINED_PLAYER"),
+		    s_bank(1),
+		    s_wager(0),
+		    s_turn(0),
+		    s_tier(7)
 {
-  // This function exists for debug purposes
-  // Don't actually create a blank player ever.
-  s_name  = QString("UNDEFINED_PLAYER");
-  s_bank  = 1;
-  s_wager = 0;
-  s_turn  = 0;
-  s_tier  = 0;
+  // This is a blank character template
+  // For the purposes of allowing you to initialize
+  // an array of players before knowing who they are
 }
 
-// Constructors
-<<<<<<< HEAD
-Player::Player(QString name, long bank) : s_wager(0), s_turn(0), s_tier(0), s_full_hand(5), s_drop_hand(0)
+Player::Player (std::string name, long bank) : s_wager(0),
+					       s_turn(0),
+					       s_tier(7)
 {
   if(name.isEmpty())
     throw std::invalid_argument("Player name is blank.");
-=======
-Player::Player (string name, long bank) 
-{
-  if(name.empty())
-    throw invalid_argument("Player name is blank.");
->>>>>>> parent of b87a8a7... Minor bug fixes
   if(bank < 1)
     throw invalid_argument("Player cannot play if their bank is empty.");
 
@@ -51,134 +42,77 @@ Player::Player (string name, long bank)
   s_bank  = bank;
 }
 
-// General Functions
-void Player::new_hand(Deck deck, int hand_size) 
+/* * * * * * * * * *
+ * General Functions
+ * * * * * * * * * */
+void Player::new_hand (Deck* deck, int hand_size) 
 {
-  // This should be the only way to remove the full hand
   s_full_hand.clear();
-  QVector<Card> temp(deck.draw_hand(hand_size));
-  for(int i = 0; i < hand_size; i++)
-    s_full_hand.append(temp[i]);
-
-  std::cout << "Dispensing " << s_full_hand.size() << " cards" << std::endl;
+  s_full_hand = deck->draw_hand(hand_size);
 }
 
-
-
-// Accessor Functions
-
-// For Name
-<<<<<<< HEAD
-QString Player::name() const
-=======
-string Player::get_name () 
->>>>>>> parent of b87a8a7... Minor bug fixes
-{
-  return s_name;
-}
-
-// For bank
-long Player::bank() const
-{
-  return s_bank;
-}
-void Player::set_bank(long displacement) 
+void Player::add_bank (long displacement) 
 {
   s_bank = s_bank + displacement;
 }
 
-// For Wager
-long Player::wager() const
-{
-  return s_wager;
-}
-
-void Player::set_wager(long wager) 
+void Player::set_wager (long wager) 
 {
   if (wager < 0)
-<<<<<<< HEAD
     throw std::invalid_argument("Player has attempted to place negative wager.");
-  else if(wager > bank())
-    throw std::invalid_argument("Player has attempted to place a wager greater than the amount of money he has.");
-=======
-    throw invalid_argument("Player has attempted to place negative wager.");
   else if(wager > get_bank())
-    throw invalid_argument("Player has attempted to place a wager greater than the amount of money he has.");
->>>>>>> parent of b87a8a7... Minor bug fixes
+    throw std::invalid_argument("Player has attempted to place a wager greater than the amount of money he has.");
 
   s_wager = wager;
 }
 
-// For the current tier
-int Player::tier() const
+void Player::promote_tier ()
 {
-  return s_tier;
-}
-
-void Player::promote_player()
-{
-<<<<<<< HEAD
-  if(s_tier < 6)
-    s_tier++;
-  else
-    throw std::runtime_error("Attempted to promote player beyond winning capacity");
-}
-
-void Player::demote_player()
-{
-  if(s_tier > 0)
+  // Promote a player only if they are below tier 1
+  if(s_tier > 1)
     s_tier--;
-  else
-    throw std::runtime_error("Attempted to demote player beyond lowest rung");
-=======
-  if(tier < 0)
-    throw invalid_argument("Player has been placed in negative tier.");
-  else if(tier > 6)
-    throw invalid_argument("Player has been placed in excessive tier.");
-  s_tier = tier;
->>>>>>> parent of b87a8a7... Minor bug fixes
 }
 
-
-// For the current turn
-int Player::turn() const
+void Player::demote_tier ()
 {
-  return s_turn;
+  // Demote a player only if they are on a tier lower than 7
+  if(s_tier < 7)
+    s_tier++;
 }
 
-void Player::advance_turn()
+void Player::advance_turn ()
 {
   s_turn++;
 }
 
-
-// For the Drop Hand
-<<<<<<< HEAD
-QVector<Card> Player::drop_hand() const 
-=======
-vector<Card> Player::get_drop_hand () 
->>>>>>> parent of b87a8a7... Minor bug fixes
+void Player::push_drop_hand(Card card)
 {
-  return s_drop_hand;
+  if(s_drop_hand.size() < 3)
+    s_drop_hand.push_back(card);
+  else
+    throw std::invalid_argument("Cannot add more cards to your hand");
 }
 
-QString Player::drop_hand_string() const
+bool Player::compare(const Player& x, const Player& y)
 {
-<<<<<<< HEAD
-  // This exists for debug purposes
-  QString str;
+  return x.tier() > y.tier();
+}
 
-  for(int i = 0; i < s_drop_hand.size(); i++)
-    {
-      str.append(QString::number(i + 1));
-      str.append(". ");
-      str.append(s_drop_hand[i].to_string()); 
-      str.append("\n");
-    }
+// Accessor Functions
+std::string Player::name () const { return s_name; }
+long        Player::bank () const { return s_bank; }
+long        Player::wager() const { return s_wager;} 
+int         Player::tier () const { return s_tier; }
+int         Player::turn () const { return s_turn; }
 
-  return str;
-=======
-  stringstream ss;
+std::vector<Card> Player::drop_hand() const { return s_drop_hand; }
+std::vector<Card> Player::full_hand() const { return s_full_hand; }
+
+
+// Display functions purely for the test client
+std::string Player::get_drop_hand_string()
+{
+  std::stringstream ss;
 
   for(int i = 0; i < s_drop_hand.size(); i++)
     {
@@ -188,68 +122,15 @@ QString Player::drop_hand_string() const
   return ss.str();
 }
 
-void Player::set_drop_hand (vector<Card> hand) 
+// Deprecated functions
+void Player::set_drop_hand (std::vector<Card> hand) 
 {
   // TODO: Make sure drop hand contains valid values. 
   s_drop_hand = hand;
->>>>>>> parent of b87a8a7... Minor bug fixes
-}
-
-void Player::add_to_drop_hand (Card card)
-{
-  if(s_drop_hand.size() < 3)
-    s_drop_hand.push_back(card);
-  else
-    throw std::invalid_argument("Cannot add more cards to your hand");
-}
-
-void Player::clear_drop_hand()
-{
-  s_drop_hand.clear();
 }
 
 
-// For the Full Hand
-<<<<<<< HEAD
-QVector<Card> Player::full_hand() const
-{
-  return s_full_hand;
-}
-QString Player::full_hand_string() const
-{
-  QString str;
-=======
-vector<Card> Player::get_full_hand() 
-{
-  return s_full_hand;
-}
-string Player::get_full_hand_string()
-{
-  stringstream ss;
->>>>>>> parent of b87a8a7... Minor bug fixes
-
-  // This exists purely for debug purposes
-  for(int i = 0; i < s_full_hand.size(); i++)
-    {
-<<<<<<< HEAD
-      str.append(QString::number(i + 1));
-      str.append(". ");
-      str.append(s_full_hand[i].to_string());
-      str.append("\n");
-=======
-      ss << i + 1 << ". " << s_full_hand.at(i).to_string() << endl;
->>>>>>> parent of b87a8a7... Minor bug fixes
-    }
-
-  return str;
-}
-
-<<<<<<< HEAD
-
-bool Player::cmp_player(const Player& x, const Player& y)
-=======
-void Player::set_full_hand(vector<Card> hand) 
->>>>>>> parent of b87a8a7... Minor bug fixes
+void Player::set_full_hand(std::vector<Card> hand) 
 {
   return x.tier() < y.tier();
 }

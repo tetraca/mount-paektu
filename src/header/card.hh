@@ -12,8 +12,8 @@
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <QtCore>
-#include <QString>
+#include <string>
+#include <sstream>
 #include <stdexcept>
 
 #pragma once
@@ -27,12 +27,12 @@ public:
   Card(int rank, Suit suit);
   int  rank() const;
   Suit suit() const;
-  QString to_string() const;
+  std::string to_string();
 
   static int compare(Card card1, Card card2);
 
 private:
   int  s_rank;
   Suit s_suit;
-  QString get_suit_as_string() const;
+  std::string suit_as_string();
 };

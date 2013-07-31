@@ -14,13 +14,14 @@
 #include <iostream>
 #include "header/deck.hh"
 
-Deck::Deck (int stacks) : s_card_deck(0), s_out_of_cards(false)
+Deck::Deck (int stacks) : s_out_of_cards(false)
 {
   if(stacks < 1)
     throw std::invalid_argument("Deck: Stacks declared are less than one.");
 
-  stacks = s_stacks;
+  s_stacks = stacks;
 
+  // Build an ordered deck, then shuffle it.
   build_deck();
   shuffle();
 }
@@ -44,9 +45,9 @@ Card Deck::draw_card ()
   return drawn_card;
 }
 
-QVector<Card> Deck::draw_hand (int n) 
+std::vector<Card> Deck::draw_hand (int n) 
 {
-  QVector<Card> drawn_cards(0);
+  std::vector<Card> drawn_cards(0);
 
   if(!is_out_of_cards())
     {
@@ -54,14 +55,14 @@ QVector<Card> Deck::draw_hand (int n)
 	{
 	  // Draw the cards from the deck
 	  for(int i = 0; i < n; i++) 
-	    drawn_cards.append(draw_card());
+	    drawn_cards.push_back(draw_card());
 	}
       else
 	{
 	  // Draw the remainder of the cards and signal
 	  // That the deck is out of cards
 	  for(int i = 0; i < s_card_deck.size(); i++)
-	    drawn_cards.append(draw_card());
+	    drawn_cards.push_back(draw_card());
 
 	  s_out_of_cards = true;
 	}
@@ -99,26 +100,13 @@ void Deck::build_deck ()
 
       // Repeat for each card rank
       for (int j = 1; j < 14; j++) 
-	s_card_deck.append(Card(j, deck_suit));
+	s_card_deck.push_back(Card(j, deck_suit));
     }
   }
 }
 
 void Deck::shuffle () 
 {
-  // Seed RNG
-  qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-
-  // Iterate across the deck, swapping a random card
-  // with the currently selected card
-  for(int i = 0; i < s_card_deck.size(); i++)
-    {
-      // Select a random card
-      int sel = qrand() % s_card_deck.size();
-
-      // Swap the randomly selected card
-      Card card = s_card_deck[i];
-      s_card_deck[i] = s_card_deck[sel];
-      s_card_deck[sel] = card;
-    }
+  // NOTE: Consider implementing Knuth shuffle
+  std::random_shuffle(card_deck.begin(), card_deck.end());
 }

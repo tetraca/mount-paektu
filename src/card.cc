@@ -41,11 +41,11 @@ Card::Suit Card::suit () const
   return s_suit;
 }
 
-QString Card::get_suit_as_string () const
+std::string Card::suit_as_string ()
 {
   // This function exists purely for debug purposes.
 
-  QString strep;
+  std::string strep;
 
   if(s_suit == SPADES)
     strep = "Spades";
@@ -61,20 +61,19 @@ QString Card::get_suit_as_string () const
   return strep;
 }
 
-QString Card::to_string () const
+std::string Card::to_string () const
 {
   // This function exists purely for debug purposes.
-  QString ret;
-
-  ret.append(QString::number(s_rank));
-  ret.append(" of ");
-  ret.append(get_suit_as_string());
- 
-  return ret;
+  std::string ret;
+  std::ostringstream ss;
+  
+  ss << s_rank << " of " << suit_as_string();
+  
+  return ss.str();
 }
 
-int Card::compare(Card card1, Card card2)
+bool Card::compare(Card card1, Card card2)
 {
-  return card1.rank() - card2.rank();
+  return card1.rank() > card2.rank();
 }
 

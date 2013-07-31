@@ -12,19 +12,23 @@
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include "header/dealer.hh"
+#include <vector>
+#include <algorithm>
 
-Dealer::Dealer()
+#include "card.hh"
+#include "player.hh"
+#include "dealer.hh"
+
+#pragma once
+
+class PlayerAI
 {
-  Player("Dealer", 1);
-}
+public:
+  PlayerAI(Player* player, Dealer* dealer);
+  
+  void consider();
 
-void Dealer::choose_cards()
-{
-  std::sort(s_full_hand.begin(), s_full_hand.end(), Card::compare);
-
-  // Get the highest rated cards
-  // Put them in the drop hand
-  push_drop_hand(s_full_hand[0]);
-  push_drop_hand(s_full_hand[1]);
-}
+private:
+  Player*  s_player;
+  Dealer*  s_dealer;
+};
