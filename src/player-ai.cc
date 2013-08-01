@@ -12,7 +12,13 @@
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include "header/player-ai.cc"
+#include "header/player-ai.hh"
+
+PlayerAI::PlayerAI() : s_player(NULL),
+		       s_dealer(NULL)
+{
+  // Initializes a blank ai. This will not go well
+}
 
 PlayerAI::PlayerAI(Player* player, Dealer* dealer) : s_player(player),
 						     s_dealer(dealer)
@@ -32,7 +38,7 @@ void PlayerAI::consider()
   std::vector<Card> full_hand = s_player->full_hand();
 
   // Firstly, sort the cards owned by the player, as with the Dealer AI
-  s_player->std::sort(full_hand.begin(), full_hand.end(), Card::compare);
+  std::sort(full_hand.begin(), full_hand.end(), Card::compare);
   
   // Sum the highest value cards in the player
   // Calculate the rank of the dealer

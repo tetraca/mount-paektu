@@ -46,9 +46,8 @@ public:
   long wager() const;
   int  tier() const;
   int  turn() const;
-
-  std::vector<Card> drop_hand();
-  std::vector<Card> full_hand();
+  std::vector<Card> drop_hand() const;
+  std::vector<Card> full_hand() const;
 
   // Debug
   std::string drop_hand_string();

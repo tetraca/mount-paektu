@@ -15,7 +15,9 @@
 
 #include <iostream>
 #include <sstream>
+#include <array>
 #include "header/player.hh"
+#include "header/player-ai.hh"
 #include "header/dealer.hh"
 #include "header/paektu.hh"
 
@@ -28,14 +30,16 @@ int main (int argc, char *argv[])
 {
   std::string input;
   std::stringstream ss;
-
   long wager;
-
-  std::cout << "Hello." << std::endl;
 
   Paektu paektu_test;
 
-  std::cout << "Paektu Initialized." << std::endl;
+  std::array<PlayerAI, 6> ai;
+
+  // Assign each bot a player slot, excluding the first
+  for(int i = 1; i < 7; i++)
+    ai.at(i - 1) = PlayerAI(&paektu_test.player_at(i), &paektu_test.dealer());
+
 
   input = "default";
 
@@ -47,44 +51,55 @@ int main (int argc, char *argv[])
     {
       for(int i = 0; i < 7; i++)
 	{
-	  // Note which player we are on
-	  std::cout << "-> NEW TURN: PLAYER " << i + 1 << "-<" << std::endl;
-
-	  // Show the dealer's cards.
-	  std::cout << "The dealer has drawn:" << std::endl <<
-	    (paektu_test.get_dealer()).drop_hand_string().toUtf8().constData() << std::endl;
-
-	  // Show your cards.
-	  std::cout << "You have drawn:" << std::endl <<
-	    (paektu_test.get_player_at(i)).full_hand_string().toUtf8().constData() << std::endl;
-
-	  // Get the wager
-	  try
+	  // Bot test! Only 'Player 1' is actually real.
+	  if(paektu_test.player_at(i).name() != "Player 1")
 	    {
-	      wager = get_wager(paektu_test.get_player_at(i));
+	      // The rest consider their turns automatically
+	      ai.at(i - 1).consider();
 	    }
-	  catch(std::runtime_error& e)
+	  else
 	    {
-	      input = "no";
-	    }
+	      // Note which player we are on
+	      std::cout << "-> NEW TURN: " 
+			<< paektu_test.player_at(i).name() << " <-" << std::endl;
 
-	  // Try to grab cards
-	  for(int j = 0; j < 2; j++)
-	    {
+	      // Show the dealer's cards.
+	      std::cout << "The dealer has drawn:" << std::endl 
+			<< paektu_test.dealer().drop_hand_string() << std::endl;
+
+	      // Show your cards.
+	      std::cout << "You have drawn:" << std::endl 
+			<< paektu_test.player_at(i).full_hand_string() 
+			<< std::endl;
+
+	      // Get the wager
 	      try
 		{
-		  paektu_test.get_player_at(i).add_to_drop_hand(get_card(paektu_test.get_player_at(i)));
+		  wager = get_wager(paektu_test.player_at(i));
 		}
 	      catch(std::runtime_error& e)
 		{
-		  // If we throw a runtime error, quit.
-		  // This should be checked better.
-		  return 0;
+		  input = "no";
 		}
-	    }
+
+	      // Try to grab cards
+	      for(int j = 0; j < 2; j++)
+		{
+		  try
+		    {
+		      paektu_test.player_at(i).push_drop_hand(get_card(paektu_test.player_at(i)));
+		    }
+		  catch(std::runtime_error& e)
+		    {
+		      // If we throw a runtime error, quit.
+		      // This should be checked better.
+		      return 0;
+		    }
+		}
 	  
-	  // Advance the player's turn
-	  paektu_test.get_player_at(i).advance_turn();
+	      // Advance the player's turn
+	      paektu_test.player_at(i).advance_turn();
+	    }
 	}
 
       // Process all the player's results
@@ -125,7 +140,7 @@ long get_wager(Player &player)
   while(!validity || !input.compare("no"))
     {
       // Get a wager.
-      ss << player.name().toUtf8().constData() 
+      ss << player.name() 
 	 << ", what is your wager? [Max " 
 	 << player.bank() << "] ";
       input = read_user_input(ss.str());
@@ -181,7 +196,7 @@ Card get_card(Player &player)
 	    {
 	      validity = true;
 	      card = player.full_hand().at(selection - 1);
-	      std::cout << "You have selected:" << player.full_hand().at(selection -1 ).to_string().toUtf8().constData() << std::endl;
+	      std::cout << "You have selected:" << player.full_hand().at(selection -1 ).to_string() << std::endl;
 	    }
 	  else
 	    {
@@ -214,8 +229,8 @@ void round_end_summary(Paektu& game)
 
   for(int i = 0; i < 7; i++)
     {
-      Player player = game.get_player_at(i);
-      std::cout << "Standings for: " << player.name().toUtf8().constData() << std::endl;
+      Player player = game.player_at(i);
+      std::cout << "Standings for: " << player.name() << std::endl;
       std::cout << "  Tier: " << player.tier() << std::endl;
       std::cout << "  Bank: " << player.bank() << std::endl;
       std::cout << std::endl;

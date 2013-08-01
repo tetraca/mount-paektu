@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <QtAlgorithms>
+#include <algorithm>
 #include "player.hh"
 
 #pragma once

@@ -12,11 +12,13 @@
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <iostream>
 #include "header/paektu.hh"
 
 // Debug constructor
 Paektu::Paektu() : s_deck(40), 
 		   s_pot(0),
+		   s_current_turn(0),
 		   s_game_status(PLAYING)
 {
   // Notes on Initialization:
@@ -36,10 +38,10 @@ Paektu::Paektu() : s_deck(40),
   for(int i = 1; i <= s_players.size(); i++) 
     {
       playername << "Player " << i;
-      s_players[i - 1] = Player(playername.str(), 2000);
+      s_players.at(i - 1) = Player(playername.str(), 2000);
 
       // Clear after player creation
-      playername.str(std::String(""));
+      playername.str(std::string(""));
     }
 
   // Draw a new round after initialization
@@ -88,7 +90,7 @@ void Paektu::advance_round()
 	    player.drop_hand().at(1).rank();
 
 	  // Player - Player Relationships
-	  if((diff_player == 0) && (tier_residents(7).size() < 7))
+	  if((diff_player == 0) && (tier_residents(6).size() < 7))
 	    {
 	      // The case of doubles.
 	      // Doubles will demote a player.
@@ -131,7 +133,8 @@ void Paektu::advance_round()
 
 Player& Paektu::highest_player()
 {
-  std::sort(s_players.begin(), s_players.end(), Player::cmp_player);
+  // Note: Highest player should not destructively sort things.
+  std::sort(s_players.begin(), s_players.end(), Player::compare);
 
   return s_players[6];
 }
@@ -139,8 +142,8 @@ Player& Paektu::highest_player()
 void Paektu::round_won(Player& player)
 {
   // Grab all the players being held in the next tier
-  int next_tier = player.get_tier() + 1;
-  std::vector<Player*> tier = tier_residents(next_tier);
+  int next_tier = player.tier() - 1;
+  std::vector<Player*> ntier = tier_residents(next_tier);
 
   // Check to see if the tier is full
   if(ntier.size() >= next_tier)
@@ -148,7 +151,7 @@ void Paektu::round_won(Player& player)
       // When the next tier is full
       // Demote a player in that tier
       // The first that appears in that tier will suffice
-      tier.at(0)->demote_tier();
+      ntier[0]->demote_tier();
     }
 
   // Finally, place the player into a new tier
@@ -161,7 +164,7 @@ void Paektu::round_lost(Player& player)
   add_current_pot(player.wager());
 
   // Subtract the wager from their bank
-  player.set_bank(0 - player.wager());
+  player.add_bank(0 - player.wager());
   player.set_wager(0);
 }
 
@@ -208,15 +211,15 @@ void Paektu::draw_new_round()
       // Then split the pot into equal portions
 
       int* highest_tier;
-      std::vector<int> tier_list = player_tiers();
-      highest_tier = std::max_element(tier_list.begin(), tier_list.end());
+      std::array<int, 7> tiers = tier_list();
+      highest_tier = std::max_element(tiers.begin(), tiers.end());
 
       std::vector<Player*> tier_players;
-      tier_players = tier(*highest_tier);
+      tier_players = tier_residents(*highest_tier);
 
       int split_pot = s_pot / tier_players.size();
       for(Player* i: tier_players)
-	i->set_bank(split_pot);
+	i->add_bank(split_pot);
     }
 }
 
@@ -241,10 +244,10 @@ Player& Paektu::player_at(int i)
   else if(i > 6)
     throw std::invalid_argument("Tried to get player at more than six");
 
-  return s_players[i];
+  return s_players.at(i);
 }
 
-Dealer& Paektu::dealer()      const { return s_dealer; }
+Dealer&  Paektu::dealer()       { return s_dealer; }
 long    Paektu::current_pot() const { return s_pot; }
 bool    Paektu::is_complete() const { return (s_game_status == COMPLETE); }
 
@@ -255,7 +258,7 @@ std::vector<Player*> Paektu::tier_residents(int tier)
   else if(tier < 0)
     throw std::invalid_argument("get_tier supplied with tier < 0");
 
-  QVector<Player*> players_of_tier;
+  std::vector<Player*> players_of_tier;
 
   for(Player &player : s_players) 
     {
@@ -277,8 +280,6 @@ std::array<int, 7> Paektu::tier_list()
 
   return tiers;
 }
-
-
 
 void Paektu::add_current_pot(long wager) 
 {

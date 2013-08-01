@@ -11,7 +11,6 @@
 
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
-#include <iostream>
 #include "header/deck.hh"
 
 Deck::Deck (int stacks) : s_out_of_cards(false)
@@ -47,7 +46,7 @@ Card Deck::draw_card ()
 
 std::vector<Card> Deck::draw_hand (int n) 
 {
-  std::vector<Card> drawn_cards(0);
+  std::vector<Card> drawn_cards;
 
   if(!is_out_of_cards())
     {
@@ -107,6 +106,10 @@ void Deck::build_deck ()
 
 void Deck::shuffle () 
 {
-  // NOTE: Consider implementing Knuth shuffle
-  std::random_shuffle(card_deck.begin(), card_deck.end());
+  // Use a random number generator
+  std::random_device rseed;
+  std::minstd_rand generator(rseed());
+
+  // Apply it to the std shuffle commands
+  std::shuffle(s_card_deck.begin(), s_card_deck.end(), generator);
 }

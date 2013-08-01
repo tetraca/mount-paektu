@@ -41,7 +41,7 @@ Card::Suit Card::suit () const
   return s_suit;
 }
 
-std::string Card::suit_as_string ()
+std::string Card::suit_as_string () const
 {
   // This function exists purely for debug purposes.
 

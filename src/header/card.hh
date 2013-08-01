@@ -27,12 +27,12 @@ public:
   Card(int rank, Suit suit);
   int  rank() const;
   Suit suit() const;
-  std::string to_string();
+  std::string to_string() const;
 
-  static int compare(Card card1, Card card2);
+  static bool compare(Card card1, Card card2);
 
 private:
   int  s_rank;
   Suit s_suit;
-  std::string suit_as_string();
+  std::string suit_as_string() const;
 };

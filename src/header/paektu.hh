@@ -29,25 +29,26 @@ public:
 
   void advance_round();
 
-  QVector<Player*> tier(int tier);
+  std::vector<Player*> tier_residents(int tier);
+  std::array<int, 7> tier_list();
 
-  long get_current_pot();
+  long current_pot() const;
   void add_current_pot(long wager);
 
   enum GameStatus {PLAYING, COMPLETE};
-  bool is_complete();
+  bool is_complete() const;
 
-  Player& get_player_at(int i);
-  Dealer& get_dealer();
+  Player& player_at(int i);
+  Dealer& dealer();
 
-  void player_round_won(Player& player);
-  void player_round_lost(Player& player);
+  void round_won(Player& player);
+  void round_lost(Player& player);
 
 private:
   int                   s_current_turn;
   Deck                  s_deck;
   long                  s_pot;
-  std::vector<Player>   s_players;
+  std::array<Player, 7> s_players;
   Dealer                s_dealer;
   GameStatus            s_game_status;
 

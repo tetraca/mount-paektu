@@ -33,10 +33,10 @@ Player::Player (std::string name, long bank) : s_wager(0),
 					       s_turn(0),
 					       s_tier(7)
 {
-  if(name.isEmpty())
+  if(name.empty())
     throw std::invalid_argument("Player name is blank.");
   if(bank < 1)
-    throw invalid_argument("Player cannot play if their bank is empty.");
+    throw std::invalid_argument("Player cannot play if their bank is empty.");
 
   s_name  = name;
   s_bank  = bank;
@@ -47,7 +47,7 @@ Player::Player (std::string name, long bank) : s_wager(0),
  * * * * * * * * * */
 void Player::new_hand (Deck* deck, int hand_size) 
 {
-  s_full_hand.clear();
+  s_drop_hand.clear();
   s_full_hand = deck->draw_hand(hand_size);
 }
 
@@ -60,7 +60,7 @@ void Player::set_wager (long wager)
 {
   if (wager < 0)
     throw std::invalid_argument("Player has attempted to place negative wager.");
-  else if(wager > get_bank())
+  else if(wager > bank())
     throw std::invalid_argument("Player has attempted to place a wager greater than the amount of money he has.");
 
   s_wager = wager;
@@ -110,17 +110,26 @@ std::vector<Card> Player::full_hand() const { return s_full_hand; }
 
 
 // Display functions purely for the test client
-std::string Player::get_drop_hand_string()
+std::string Player::drop_hand_string()
 {
   std::stringstream ss;
 
   for(int i = 0; i < s_drop_hand.size(); i++)
-    {
-      ss << i + 1 << ". " << s_drop_hand.at(i).to_string() << endl;
-    }
+    ss << i + 1 << ". " << s_drop_hand.at(i).to_string() << std::endl;
+  
+  return ss.str();
+}
+
+std::string Player::full_hand_string()
+{
+  std::stringstream ss;
+
+  for(int i = 0; i < s_full_hand.size(); i++)
+    ss << i + 1 << ". " << s_full_hand.at(i).to_string() << std::endl;
 
   return ss.str();
 }
+
 
 // Deprecated functions
 void Player::set_drop_hand (std::vector<Card> hand) 
@@ -129,9 +138,4 @@ void Player::set_drop_hand (std::vector<Card> hand)
   s_drop_hand = hand;
 }
 
-
-void Player::set_full_hand(std::vector<Card> hand) 
-{
-  return x.tier() < y.tier();
-}
 

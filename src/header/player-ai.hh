@@ -24,6 +24,7 @@
 class PlayerAI
 {
 public:
+  PlayerAI();
   PlayerAI(Player* player, Dealer* dealer);
   
   void consider();
