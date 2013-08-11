@@ -14,9 +14,9 @@
 
 #include "header/dealer.hh"
 
-Dealer::Dealer()
+Dealer::Dealer() : Player("Dealer", 1)
 {
-  Player("Dealer", 1);
+  // A dealer is just a specialized player
 }
 
 void Dealer::choose_cards()
