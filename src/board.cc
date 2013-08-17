@@ -14,7 +14,8 @@
 
 #include "header/board.hh"
 
-Board::Board(std::array<Player*, 7> players) : s_players(players)
+Board::Board(std::array<Player*, 7> players) : Gtk::Grid(),
+					       s_players(players)
 {
   // Attach the board's slots, bottom to top
   // In a pyramid fashion on a 14x7 grid
@@ -28,18 +29,16 @@ Board::Board(std::array<Player*, 7> players) : s_players(players)
 	  // As spaces before the skip are blank
 	  // We also want to fill up every other space on the 14x7 grid
 
-	  int skip = vert - 7;
+	  int skip = 7 - vert;
 	  bool fill_flag = (((horiz - skip) % 2) != 0);
 
-	  if((horiz >= skip) && fill_flag)
+	  if((horiz > skip) && fill_flag && (horiz < (14 - skip)))
 	    {
 	      // Fill the very bottom row with players
 	      if(vert == 7)
-		{
-		  s_slots[i] = BoardSlot(s_players[i]);
-		}
+		s_slots.at(i).set_player(s_players[i]);
 
-	      s_grid.attach(s_slots[i], horiz, vert, 1);
+	      attach(s_slots.at(i), horiz, vert, 1, 1);
 	      i++;
 	    }
 	}
@@ -71,7 +70,7 @@ std::vector<BoardSlot*> Board::slots(int tier)
   // belonging to the tier requested
   int end;
   for(int i = 7; i > tier; i--)
-    begin += i;
+    end += i;
 
   int begin = end - tier;
 
@@ -79,7 +78,7 @@ std::vector<BoardSlot*> Board::slots(int tier)
   // will be returned
   std::vector<BoardSlot*> tier_slots;
   for(int i = begin; i <= end; i++)
-    ret.push_back(&s_slots[i]);
+    tier_slots.push_back(&s_slots[i]);
 
   return tier_slots;
 }
