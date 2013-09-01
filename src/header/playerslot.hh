@@ -12,34 +12,37 @@
  * You should have received a copy of the GNU General Public License
  * along with Mount Paektu.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <string>
-#include <sstream>
+#include <array>
+
+#include <glibmm/ustring.h>
+#include <gtkmm/image.h>
+#include <gtkmm/label.h>
+#include <gtkmm/box.h>
 #include <stdexcept>
+
+#include "card.hh"
+#include "player.hh"
 
 #pragma once
 
-class Card 
+class PlayerSlot : public Gtk::Box
 {
 public:
-  enum Suit 
-    {
-      CLUBS     = 0, 
-      DIAMONDS  = 1, 
-      HEARTS    = 2, 
-      SPADES    = 3, 
-      UNDEFINED = 4
-    };
+  PlayerSlot();
+  PlayerSlot(Player* player);
 
-  Card();
-  Card(int rank, Suit suit);
-  int  rank()  const;
-  Suit suit()  const;
-  std::string to_string() const;
-
-  static bool compare(Card card1, Card card2);
+  void update();
+  void assign(Player* player);
 
 private:
-  int  s_rank;
-  Suit s_suit;
-  std::string suit_as_string() const;
+  Player*                   s_player;
+  Gtk::Image                s_player_avatar;
+  std::array<Gtk::Image, 2> s_drop_hand; 
+  Gtk::Label                s_player_name;
+
+  Glib::ustring card_path(Card card);
+
+  static const Glib::ustring PLAYER_DEFAULT_AVATAR;
+  static const Glib::ustring PLAYER_CARD_BACK;
 };
+

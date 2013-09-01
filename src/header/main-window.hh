@@ -14,6 +14,7 @@
 
 #include "board.hh"
 #include "player.hh"
+#include "playerslot.hh"
 #include "paektu.hh"
 #include <array>
 #include <gtkmm/action.h>
@@ -28,9 +29,10 @@ public:
   virtual ~MainWindow();
 
 private:
-  Gtk::Grid         s_grid;
-  Paektu*           s_game;
-  Board             s_board;
+  Gtk::Grid                 s_grid;
+  Paektu*                   s_game;
+  Board                     s_board;
+  std::array<PlayerSlot, 6> s_player_slots;
 
   std::array<Player*, 7> collect_players(Paektu* game);
 

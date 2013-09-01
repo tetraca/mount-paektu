@@ -17,9 +17,23 @@
 MainWindow::MainWindow(Paektu* game) : s_game(game),
 				       s_board(collect_players(game))
 {
-  s_grid.attach(s_board, 2, 0, 1, 3);
-  add(s_grid);
+  // Assign other players to blank slots and attach them on either side
+  // of the board.
+  std::array<Player*, 7> collected_players = collect_players(game);
+  for(int i = 1; i < 7; i++)
+    {
+      s_player_slots.at(i - 1).assign(collected_players.at(i));
+      if(i < 4)
+	s_grid.attach(s_player_slots.at(i - 1), 1, i - 1, 1, 1);
+      else if(i >= 4)
+	s_grid.attach(s_player_slots.at(i - 1), 3, i - 4, 1, 1);
+    }
 
+  // Attach the board to the mid point
+  s_grid.attach(s_board, 2, 0, 1, 3);
+
+
+  add(s_grid);
   show_all_children();
 }
 

@@ -30,7 +30,7 @@ model: paektu.o
 
 # "View" builds
 # View builds use gtkmm and are for testing the GUI
-VIEWOBJ=main-window.o board.o boardslot.o
+VIEWOBJ=main-window.o board.o boardslot.o playerslot.o
 VIEWFLAGS=`pkg-config gtkmm-3.0 --cflags --libs`
 view: main-window.o paektu.o
 	$(CC) $(CFLAGS) $(VIEWFLAGS) -o $(TARGET) $(MODELOBJ) $(VIEWOBJ)
@@ -61,10 +61,13 @@ paektu.o: card.o deck.o player.o dealer.o player-ai.o
 boardslot.o:
 	$(CC) $(CFLAGS) $(VIEWFLAGS) -c -o boardslot.o boardslot.cc
 
+playerslot.o:
+	$(CC) $(CFLAGS) $(VIEWFLAGS) -c -o playerslot.o playerslot.cc
+
 board.o: boardslot.o
 	$(CC) $(CFLAGS) $(VIEWFLAGS) -c -o board.o board.cc
 
-main-window.o: board.o
+main-window.o: board.o playerslot.o
 	$(CC) $(CFLAGS) $(VIEWFLAGS) -c -o main-window.o main-window.cc
 
 

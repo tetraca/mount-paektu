@@ -42,9 +42,6 @@ BoardSlot::BoardSlot(Player* player) : s_image(PLAYER_SLOT_PATH),
 
   pack_end(s_image);
   pack_end(s_label);
-
-  s_image.show();
-  s_label.show();
 }
 
 void BoardSlot::clear()
@@ -78,7 +75,3 @@ bool BoardSlot::is_occupied()
 {
   return s_occupied;
 }
-
-
-
-
